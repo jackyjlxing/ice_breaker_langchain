@@ -1,7 +1,8 @@
 from dotenv import load_dotenv
 
 load_dotenv()
-from langchain_openai import ChatOpenAI
+# from langchain_openai import ChatOpenAI
+from langchain_ollama import ChatOllama
 from langchain.prompts.prompt import PromptTemplate
 from langchain_core.tools import Tool
 from langchain.agents import (
@@ -13,13 +14,12 @@ from tools.tools import get_profile_url_tavily
 
 
 def lookup(name: str) -> str:
-    llm = ChatOpenAI(
-        temperature=0,
-        model_name="gpt-4o-mini",
+    llm = ChatOllama(
+        model="llama3.2",
     )
-    template = """
-       given the name {name_of_person} I want you to find a link to their Twitter profile page, and extract from it their username
-       In Your Final answer only the person's username"""
+    template = """given the full name {name_of_person} I want you to get it me a link to their Twitter profile page, 
+    and extract from it their user name, In your final answer should contain the person's username """
+
     prompt_template = PromptTemplate(
         template=template, input_variables=["name_of_person"]
     )
@@ -39,9 +39,11 @@ def lookup(name: str) -> str:
         input={"input": prompt_template.format_prompt(name_of_person=name)}
     )
 
-    twitter_username = result["output"]
-    return twitter_username
+    linked_profile_url = result["output"]
+    return linked_profile_url
 
 
 if __name__ == "__main__":
+    # print(lookup(name="Eden Marco"))
     print(lookup(name="Elon Musk"))
+
